@@ -163,7 +163,8 @@ LWM2M can handle sleepy devices : a window timer is trigered when the device reg
 
 ### LWM2M 
 
-**Demo time!**
+**Demo time!**   
+[a few packets (pcap file)](./LWM2M_capture.pcapng)
 
  * registration message is 63 oct (POST) : endpointname + URI path of the device-info object.
  * 201 CREATED message is 22 bytes (OK + registration ID)
@@ -181,4 +182,6 @@ Encription (optional) TLS via PSK or Raw Public Key mode or Certificate.
 
 ### Thanks
 
-http://fr.slideshare.net/jvermillard/
+http://fr.slideshare.net/jvermillard/     
+http://fr.slideshare.net/zdshelby/oma-lightweightm2-mtutorial   
+https://github.com/eclipse/leshan   
