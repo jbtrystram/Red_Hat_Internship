@@ -2,10 +2,10 @@
 
 ## Background
 
- - Need for a lightweight protocol as more & more devices are constrained
- - No  standardized solution
+ - Need for a lightweight protocol as more & more devices are constrained.
+ - No standardized solution.
 
-Open Mobile Alliance Device Management is widely used 
+Open Mobile Alliance Device Management is widely used. \\
 LWM2M is a reboot of OMA DM targeting M2M
 
 ### OMA DM
@@ -13,12 +13,10 @@ LWM2M is a reboot of OMA DM targeting M2M
  - HMAC MD5 for authentication
  - HTTPS if security is needed
 
-One stack for the device management & Application data : saves memory & CPU
-Synchronisation ! You can't trigger an update whilee rebooting the device..
-designed to be used on top of COAP or SMS
-
-Released in 2003
-Supported in OneM2M
+One stack for the device management & Application data : saves memory & CPU \\
+Synchronisation ! You can't trigger an update whilee rebooting the device.. \\
+Designed to be used on top of COAP or SMS \\
+Released in 2003, and supported in OneM2M.
 
 ## Built on COAP ?
 
@@ -27,10 +25,10 @@ Supported in OneM2M
   + confirmable message
   + Or not
 
-COAP is RESTful : GET coap://myhouse.iot/bedroom/lamps/7/status
-HTTP verbs : GET, POST, PUT, DELETE
-1 more verb : observe (suscribe)
-All in a binary format.
+COAP is RESTful : GET coap://myhouse.iot/bedroom/lamps/7/status \\
+HTTP verbs : GET, POST, PUT, DELETE \\
+1 more verb : observe (suscribe) \\
+But all in a binary format ! 
 
 Easily translatable to HTTP, Web-like caching
 
@@ -44,6 +42,10 @@ Easily translatable to HTTP, Web-like caching
  - Monitor connectivity
  - Reboot, reset to factory
  - Rrotate security keys
+
+### Application Data
+
+Let you access the application's data in your device.
 
 ## What's in the Client ?
 
@@ -99,8 +101,7 @@ Contain the value you need for your application.
 Define your own or use the already evailable ones.
 
 ### IPSO Objects
-IPSO already defined the basic things you need for common devices.
-http://technical.openmobilealliance.org/Technical/technical-information/omna/lightweight-m2m-lwm2m-object-registry
+IPSO already defined the basic things you need for common devices : [objects list (OMA)](http://technical.openmobilealliance.org/Technical/technical-information/omna/lightweight-m2m-lwm2m-object-registry)
 
 #### Ex : Luminance sensor : ID 3301
  - Sensor Value
@@ -132,19 +133,20 @@ Server answer is 201 created :
 
 ![LWM2M register](./registration.png)
 
- ### Data interaction
+
+### Data interaction
  
  ![data Access](./dataAccess.png)
 
- #### Read a data ?
+#### Read a data ?
  Server : GET /3/0/0
 
- #### WRITE  a data ?
+#### WRITE  a data ?
  Server : POST ...
  #### 
 
- #### OBSERVE a data ?
- ![LWM2M observe](./observe.png)
+#### OBSERVE a data ?
+![LWM2M observe](./observe.png)
 
  **Note** : Batch data access is possible. Response via JSON or TLV.
 
@@ -158,16 +160,16 @@ LWM2M can handle sleepy devices : a window timer is trigered when the device reg
 
 ### COAP overhead 
 
-9 bytes (for a message ithout URL)
+8 bytes !
 
 ### LWM2M 
 
-**Demo time!**
+** Demo time!**
 
- * registration message is 63 oct (POST) : endpointname + URI path of the device-info object.
- * 201 CREATED message is 22 bytes (OK + registration ID)
- * GET 3/0/1 is 5 bytes (14 byte message)
- * "XPS13" answer is 15 a bytes COAP message.
+*registration message is 63 oct (POST) : endpointname + URI path of the device-info object.
+*201 CREATED message is 22 bytes (OK + registration ID)
+*GET 3/0/1 is 5 bytes (14 byte message)
+*"XPS13" answer is 15 a bytes COAP message.
 
 
 ## Security
@@ -177,3 +179,7 @@ HMAC auth or Digest (for each message) or TLS.
 Integrity (optional) : HMAC
 
 Encription (optional) TLS via PSK or Raw Public Key mode or Certificate.
+
+### Thanks
+
+http://fr.slideshare.net/jvermillard/
