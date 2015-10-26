@@ -100,10 +100,10 @@ Or 3rd Party :
 Contain the value you need for your application.
 Define your own or use the already available ones.
 
-### IPSO Objects
+#### IPSO Objects
 IPSO already defined the basic things you need for common devices : [objects list (OMA)](http://technical.openmobilealliance.org/Technical/technical-information/omna/lightweight-m2m-lwm2m-object-registry)
 
-#### Ex : Luminance sensor : ID 3301
+##### Ex : Luminance sensor : ID 3301
  - Sensor Value
  - Units
  - Min. Measured Value
@@ -113,7 +113,7 @@ IPSO already defined the basic things you need for common devices : [objects lis
  - Reset Min. & Max. Measured Values
 
 
-## How does the server & the client talk
+## How does the server & the client talk ?
 
 Regular COAP verbs are used (transparrent mapping): 
  - read = GET
@@ -128,7 +128,7 @@ The client send the list of its objects along a registration request :
 POST request :
  - `/rd?ep=node34141 </1/1>, <2/1> ....` (list of objects IDs)
 
-Server answer is 201 created : 
+Server answer is `201 created` : 
  - location : /rd/5A3F
 
 ![LWM2M register](./registration.png)
