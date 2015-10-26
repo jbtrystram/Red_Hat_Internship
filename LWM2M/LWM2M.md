@@ -162,12 +162,12 @@ LWM2M can handle sleepy devices : a window timer is trigered when the device reg
 
 ### LWM2M 
 
-** Demo time!**
+**Demo time!**
 
-*registration message is 63 oct (POST) : endpointname + URI path of the device-info object.
-*201 CREATED message is 22 bytes (OK + registration ID)
-*GET 3/0/1 is 5 bytes (14 byte message)
-*"XPS13" answer is 15 a bytes COAP message.
+ * registration message is 63 oct (POST) : endpointname + URI path of the device-info object.
+ * 201 CREATED message is 22 bytes (OK + registration ID)
+ * GET 3/0/1 is 5 bytes (14 byte message)
+ * "XPS13" answer is 15 a bytes COAP message.
 
 
 ## Security
