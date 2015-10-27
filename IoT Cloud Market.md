@@ -46,21 +46,22 @@ Boostraping solution : server initiated, must be on the same network.
 
 
 ## Microsoft Azure IoT
-[Main Documentation](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-what-is-azure-iot/)
-[Technical Documentation](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-devguide/)
+[Main Documentation](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-what-is-azure-iot/)   
+[Technical Documentation](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-devguide/)   
+[SDKs](https://github.com/Azure/azure-iot-sdks)   
 
-The device exchange data with the cloud via :
+The device exchange data with the cloud via :    
  - AMQP
  - HTTP
  - MQTT ([via Azure protocol gateway](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-devguide/#messaging))
 
- *Note* : Your application can access devices via the Azure hub only with **AMQP**.
+*Note* : Your application can access devices via the Azure hub only with **AMQP**.
 
 **Device management** :    
 The device must be [provisioned in the IoT hub](https://azure.microsoft.com/en-gb/documentation/articles/iot-hub-device-management/#device-provisioning-and-discovery). The service issue the necessary tokens and URIs. Thoses must be provided into the device.
 The service offers a REST API to create, retrieve, update, and delete devices.
 
-**Authentication**
+**Authentication**    
  - SASL PLAIN & Claim based security when using AMQP
  - Token in the Authentication HTTP header
 
@@ -69,47 +70,62 @@ The service offers a REST API to create, retrieve, update, and delete devices.
 **Authorization** Per device policy. Read/Write/Connect.
 
 
-## OVH iot -> Still in Beta (see runabove.com)
-auth via token (got into your runabove account) + TLS
---> differents tokens for write & access
-HTTPS (POST)
-telnet ('put' command)
-As for now the system send an ACK (http) or a 'go' to send (telnet)
+## OVH iot (Still in Beta)
+runabove.com
 
+Available protocols :    
+ - HTTP
+ - Telnet
 
-## thingworx
-TLS 1.2
-The devices needs to authenticate (how?)
+**Authentication**     
+Token (got into your runabove account, when provisioning a device) + TLS
 
+**Confidentiality** devices may use TLS encryption
 
-## Zatar 
-Application : Authentication : get a token via HTTPS POST (email&password)
-	read & write data via HTTPS API.
-Device : CoAP (UDP or TCP) with TLS or DTLS.
-
-
-## SierraWireless
- - AirVantage is the cloud plateform
-  * Device send data to cloud via MQTT or HTTP API.
-  * Application can access the data via HTTPS API
-
- - Gateways
-  * Can be managed via AirLink service
-  * 
-
-## Texas Instruments
-SensorTag
-
-## Onion IOT (they also sell a little raspberry pi less powerful.)
-Auth 2.0 
-RESTful API
-Low-end devices can use 128 bits AES. SSL otherwise
-
+**Authorization**    
+differents tokens are used to write or read.
 
 ## IBM Bluemix
 act as the MQTT broker
 you declare your device into the plateform, then get a token that you push into the device.
 You want security ? Use TLS. No UDP support.
+
+## Zatar 
+[device API](http://www.zatar.com/device-API)
+
+Available protocols :    
+ - COAP (over UDP&TCP)
+
+**Authentication**     ?
+
+**Confidentiality** devices may use TLS or DTLS
+
+**Authorization**    ?
+
+
+## SierraWireless AirVantage
+
+[Cloud offer](http://www.sierrawireless.com/products-and-solutions/cloud-and-connectivity-solutions/)
+
+Supported protocols :
+ - MQTT
+ - LWM2M
+ - HTTP
+
+**Authentication**   
+The device is authenticated via login & password. Those must be provided into the cloud managment interface when the device is declared.
+
+More  details : [Publishing via MQTT](https://doc.airvantage.net/av/howto/hardware/samples/generic-mqtt/)
+
+Sell physical Gateways that can be managed via AirLink service.       
+Proxy to google apps engine     
+ 
+
+## Onion IOT 
+(they also sell a little raspberry pi less powerful.)
+Auth 2.0 
+RESTful API
+Low-end devices can use 128 bits AES. SSL otherwise
 
 ## DELL 
 wants to offer gateways that brings the intelligence of the cloud at the edge of the devices network
