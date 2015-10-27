@@ -185,3 +185,4 @@ Encription (optional) TLS via PSK or Raw Public Key mode or Certificate.
 http://fr.slideshare.net/jvermillard/     
 http://fr.slideshare.net/zdshelby/oma-lightweightm2-mtutorial   
 https://github.com/eclipse/leshan   
+http://dev_devtoolkit.openmobilealliance.org/IoT/LWM2M10/doc/TS/index.html#!Documents/definitions.htm
