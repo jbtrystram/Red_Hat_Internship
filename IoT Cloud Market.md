@@ -45,14 +45,28 @@ Boostraping solution : server initiated, must be on the same network.
 **Authorization** not implemented. However LWM2M offers an access control object, so that should work easily.
 
 
-## Microsoft azure iot hub
-AMQP -> SASL PLAIN  & AMQP Claim based security.
-MQTT
-HTTP
-Per device auth & security.
-TLS ?
-SAS . look a the C code samples to understand how do they authenticate (sas in amqp??)
+## Microsoft Azure IoT
+[Main Documentation](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-what-is-azure-iot/)
+[Technical Documentation](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-devguide/)
 
+The device exchange data with the cloud via :
+ - AMQP
+ - HTTP
+ - MQTT ([via Azure protocol gateway](https://azure.microsoft.com/en-us/documentation/articles/iot-hub-devguide/#messaging))
+
+ *Note* : Your application can access devices via the Azure hub only with **AMQP**.
+
+**Device management** :    
+The device must be [provisioned in the IoT hub](https://azure.microsoft.com/en-gb/documentation/articles/iot-hub-device-management/#device-provisioning-and-discovery). The service issue the necessary tokens and URIs. Thoses must be provided into the device.
+The service offers a REST API to create, retrieve, update, and delete devices.
+
+**Authentication**
+ - SASL PLAIN & Claim based security when using AMQP
+ - Token in the Authentication HTTP header
+
+**Confidentiality** : TLS must always be use.
+
+**Authorization** Per device policy. Read/Write/Connect.
 
 
 ## OVH iot -> Still in Beta (see runabove.com)
