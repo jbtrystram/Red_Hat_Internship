@@ -78,7 +78,7 @@ Available protocols :
  - Telnet
 
 **Authentication**     
-Token (got into your runabove account, when provisioning a device) + TLS
+Token (got into your runabove account, when provisioning a device) or TLS certificate
 
 **Confidentiality** devices may use TLS encryption
 
@@ -86,9 +86,27 @@ Token (got into your runabove account, when provisioning a device) + TLS
 differents tokens are used to write or read.
 
 ## IBM Bluemix
-act as the MQTT broker
-you declare your device into the plateform, then get a token that you push into the device.
-You want security ? Use TLS. No UDP support.
+[Main documentation](https://docs.internetofthings.ibmcloud.com/fr/index.html)
+IBM bluemix is based on the open source project [cloud foundry](https://www.cloudfoundry.org/)
+
+Available protocol :
+ - MQTT
+
+**Device Management** : IBM offers a custom device management [built on MQTT](https://docs.internetofthings.ibmcloud.com/reference/device_mgmt.html) :
+ - Location
+ - Device Attributes
+ - Diagnostics
+ - Observation
+ - Reboot / Reset / upgrade firmware
+
+**Confidentiality** devices may use TLS encryption
+
+**Authentication**     
+Device must provide its ID + Token (got into your cloud account, when provisioning a device).    
+*Note* : the token is not stored in the cloud. You must store it (in case IBM cloud gets hacked?).
+
+**Authorization** : devices can publish and subscribe to a restricted topic space.
+
 
 ## Zatar 
 [device API](http://www.zatar.com/device-API)
@@ -119,14 +137,3 @@ More  details : [Publishing via MQTT](https://doc.airvantage.net/av/howto/hardwa
 
 Sell physical Gateways that can be managed via AirLink service.       
 Proxy to google apps engine     
- 
-
-## Onion IOT 
-(they also sell a little raspberry pi less powerful.)
-Auth 2.0 
-RESTful API
-Low-end devices can use 128 bits AES. SSL otherwise
-
-## DELL 
-wants to offer gateways that brings the intelligence of the cloud at the edge of the devices network
-announced 21 oct.
