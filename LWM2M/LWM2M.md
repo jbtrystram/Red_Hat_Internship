@@ -1,5 +1,37 @@
 # OMA LWM2M
 
+
+**Table of Contents**
+
+<!-- START doctoc -->
+- [OMA LWM2M](#)
+  - [Background](#)
+    - [OMA DM](#)
+  - [Built on COAP ?](#)
+  - [What does LWM2M it do ?](#)
+    - [Device Management](#)
+    - [Application Data](#)
+  - [What's in the Client ?](#)
+    - [Objects ?](#)
+    - [Management objects !](#)
+    - [Application objects !](#)
+      - [IPSO Objects](#)
+        - [Ex : Luminance sensor : ID 3301](#)
+  - [How does the server & the client talk ?](#)
+    - [Registration](#)
+    - [Data interaction](#)
+      - [Read a data ?](#)
+      - [WRITE  a data ?](#)
+      - [OBSERVE a data ?](#)
+    - [Queue management](#)
+  - [What's on the wire ?](#)
+    - [COAP overhead](#)
+    - [LWM2M](#)
+  - [Security](#)
+    - [Thanks](#)
+
+<!-- END doctoc -->
+
 ## Background
 
  - Need for a lightweight protocol as more & more devices are constrained.
