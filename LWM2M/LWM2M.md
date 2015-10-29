@@ -213,12 +213,12 @@ LWM2M can handle sleepy devices : a window timer is trigered when the device reg
 
 ## Security
 
-Security is provided by the datagram layer. See [specification for details](http://dev_devtoolkit.openmobilealliance.org/IoT/LWM2M10/doc/TS/index.html#!Documents/udpchannelsecurity.htm)     
+Security is provided by the datagram layer. See [specification](http://dev_devtoolkit.openmobilealliance.org/IoT/LWM2M10/doc/TS/index.html#!Documents/udpchannelsecurity.htm) for details.    
 
  Confidentiality, Authentication and Integrity are mandatory.
  * Authentication :
-  - PSK 
-  - Raw Public Key 
+  - PSK.
+  - Raw Public Key.
   - X509 Certificate.
  * Integrity and confidentiality 
   - A DTLS-compliant cipher is used to protect the data against tampering and provide confidentiality. See the [TLS cipher suite registry](http://www.iana.org/assignments/tls-parameters/tls-parameters.xml#tls-parameters-4) to find out which ciphers are DTLS capable.
