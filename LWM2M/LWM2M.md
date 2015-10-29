@@ -45,6 +45,8 @@ LWM2M is a reboot of OMA DM targeting M2M
  - HMAC MD5 for authentication
  - HTTPS if security is needed
 
+### OMA LWM2M
+
 One stack for the device management & Application data : saves memory & CPU   
 Synchronisation ! You can't trigger an update whilee rebooting the device...   
 Designed to be used on top of COAP or SMS   
