@@ -3,34 +3,39 @@
 
 **Table of Contents**
 
-<!-- START doctoc -->
-- [OMA LWM2M](#)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
   - [Background](#)
-    - [OMA DM](#)
-  - [Built on COAP ?](#)
-  - [What does LWM2M it do ?](#)
-    - [Device Management](#)
-    - [Application Data](#)
-  - [What's in the Client ?](#)
-    - [Objects ?](#)
-    - [Management objects !](#)
-    - [Application objects !](#)
-      - [IPSO Objects](#)
-        - [Ex : Luminance sensor : ID 3301](#)
-  - [How does the server & the client talk ?](#)
-    - [Registration](#)
-    - [Data interaction](#)
-      - [Read a data ?](#)
-      - [WRITE  a data ?](#)
-      - [OBSERVE a data ?](#)
-    - [Queue management](#)
-  - [What's on the wire ?](#)
-    - [COAP overhead](#)
-    - [LWM2M](#)
-  - [Security](#)
-    - [Thanks](#)
 
-<!-- END doctoc -->
+- [Background](#background)
+  - [OMA DM](#oma-dm)
+  - [OMA LWM2M](#oma-lwm2m)
+- [Built on COAP ?](#built-on-coap-)
+- [What does LWM2M do ?](#what-does-lwm2m-do-)
+  - [Device Management](#device-management)
+  - [Application Data](#application-data)
+- [What's in the Client ?](#whats-in-the-client-)
+  - [Objects ?](#objects-)
+  - [Management objects !](#management-objects-)
+  - [Application objects !](#application-objects-)
+    - [IPSO Objects](#ipso-objects)
+      - [Ex : Luminance sensor : ID 3301](#ex--luminance-sensor--id-3301)
+- [How does the server & the client talk ?](#how-does-the-server-&-the-client-talk-)
+  - [Registration](#registration)
+  - [Data interaction](#data-interaction)
+    - [Read a data ?](#read-a-data-)
+    - [WRITE  a data ?](#write--a-data-)
+    - [OBSERVE a data ?](#observe-a-data-)
+  - [Queue management](#queue-management)
+- [What's on the wire ?](#whats-on-the-wire-)
+  - [COAP overhead](#coap-overhead)
+  - [LWM2M](#lwm2m)
+- [Security](#security)
+- [Interoperability](#interoperability)
+- [Alternatives](#alternatives)
+  - [Thanks](#thanks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Background
 
@@ -66,7 +71,7 @@ But all in a binary format !
 
 Easily translatable to HTTP, Web-like caching
 
-## What does LWM2M it do ?
+## What does LWM2M do ?
 
 ### Device Management
 
@@ -75,7 +80,7 @@ Easily translatable to HTTP, Web-like caching
  - Configure the device
  - Monitor connectivity
  - Reboot, reset to factory
- - Rrotate security keys
+ - Rotate security keys
 
 ### Application Data
 
@@ -208,11 +213,26 @@ LWM2M can handle sleepy devices : a window timer is trigered when the device reg
 
 ## Security
 
-Mutual authentication is mandatory
-HMAC auth or Digest (for each message) or TLS.
-Integrity (optional) : HMAC
+Security is provided by the datagram layer. See [specification for details](http://dev_devtoolkit.openmobilealliance.org/IoT/LWM2M10/doc/TS/index.html#!Documents/udpchannelsecurity.htm)     
 
-Encription (optional) TLS via PSK or Raw Public Key mode or Certificate.
+ Confidentiality, Authentication and Integrity are mandatory.
+ * Authentication :
+  - PSK 
+  - Raw Public Key 
+  - X509 Certificate.
+ * Integrity and confidentiality 
+  - A DTLS-compliant cipher is used to protect the data against tampering and provide confidentiality. See the [TLS cipher suite registry](http://www.iana.org/assignments/tls-parameters/tls-parameters.xml#tls-parameters-4) to find out which ciphers are DTLS capable.
+
+
+## Interoperability 
+[Ponte : an eclipse project bridging CoAP, MQTT & HTTP](http://www.eclipse.org/ponte/)
+[RabitMQ plug-in : COAP pub/sub adaptation](https://github.com/gotthardp/rabbitmq-coap-pubsub)
+[LWM2M Gateway](https://wiki.eclipse.org/images/7/7b/LWM2M_slides_Eclipse_unconference.pdf)(Slide 15)
+
+## Alternatives
+
+[IBM IoT Fondation: Device Management](https://docs.internetofthings.ibmcloud.com/device_mgmt/operations/index.html?cm_mc_uid=25784414937514453344793&cm_mc_sid_50200000=1446130948) (Built on MQTT)
+
 
 ### Thanks
 
