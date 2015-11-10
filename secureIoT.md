@@ -28,8 +28,7 @@ Cisco c [implemation](https://github.com/cisco/libest) (a [test server](http://t
 
 [Presentation slides](https://www.ietf.org/proceedings/83/slides/slides-83-pkix-5.pdf)   
 
-Glossary : 
- - CMS : Cryptographic Message Syntax
+Glossary : $ptographic Message Syntax
  - CMC : certificate management over CMS
  - TA : Trust Anchor
 
@@ -42,14 +41,14 @@ Providing integrity for DNS records :
  - You can querry the public key via a standard DNS request "DNSKEY".    
  - The private key is used to sign the RR, a new RR is given alongside the result : RRSIG.
 
-Also used to sign the "no" : No answer needs to be authenticated. -> a name have a NSEC attached which contain the next name in the zone.
+Also used to sign the "no" : No answer needs to be authenticated. -> a name have a NSEC attached which contain the next name in the zone.   
 Ex : rhiot.io. NSEC field = 'lwm2m.rhiot.io.' So you know that amqp.rhiot.io. doesn't exists. (and that's circular) 
  * NSEC 3 does that with the HASH of the names (avoid zone walking :thumbsup: )
 
 Zone delegation : a parent zone can delegate the signing. When this is done, the parent zone have a DS record containing the signed hash of the child zone's public key. (The server who receives the delegation send his public key to his parent,  which signs it with his own key an store it.). The inexistence of a child zone is proved by a signed NSEC.
 
-:thumbsup: if you have the root key (.) you can authenticate any domains names !
-DLV allow you to start the DNSSEC without waiting that all ancestors adopted DNSSEC. 
+:thumbsup: if you have the root key (.) you can authenticate any domains names !    
+DLV allow you to start the DNSSEC without waiting that all ancestors adopted DNSSEC.     
 DLV : DNSSEC Lookaside Validation. dlv.isc.org can contain a DS to  fr.dlv.isc.org and then validate your redhat.fr by validating redhat.fr.dlv.isc.org
 
 Long key or short key ? 
@@ -139,16 +138,15 @@ A lot of ciphers ! How it works :
 TLS_<key exchange and authentication algorithms>_WITH_<bulk cipher and message authentication algorithms>
 ```
 
-| :**Key Exchange Algorithm**: | :**Signature Algorithm**: | :**Bulk Encrytpion Algorithm**: | :**Message Authentication Code**: |
-| ---------------- | ----------- | --------------- | ----------- |
-|: *Key Exchange* : | :*Authentication*: | :*Symetric Stream Encryption*: | :*Integrity*: |
-| :**TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384**: |
-| :Elliptic curve Diffie-Hellman: | :Elliptic Curve Digital Signature A
-lgorithm: | :256 bits length AES key used for symetrical encryption AES: | :HMAC with SHA algorythm 384 bits lenght output |
-| :**TLS_PSK_WITH_NULL_SHA256**: |
-| :Pre-shared Key: | :Pre-shared Key: | :No Encryption: | :256 bits SHA for HMAC.: |
-| :**TLS_PSK_WITH_AES_128_CBC_SHA256**: |
-| :Pre-shared Key: | :Pre-shared Key: | :128 bits AES symetrical Encryption: | :256 bits SHA for HMAC.: |
+| **Key Exchange Algorithm** | **Signature Algorithm** | **Bulk Encrytpion Algorithm** | **Message Authentication Code** |
+| :----------------: | :----------: | :---------------: | :-----------: |
+| *Key Exchange*  | *Authentication* | *Symetric Stream Encryption* | *Integrity* |
+| **TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384** |
+| Elliptic curve Diffie-Hellman | Elliptic Curve Digital Signature Algorithm | 256 bits length AES key used for symetrical encryption AES | HMAC with SHA algorythm 384 bits lenght output |
+| **TLS_PSK_WITH_NULL_SHA256** |
+| Pre-shared Key | Pre-shared Key | No Encryption | 256 bits SHA for HMAC. |
+| **TLS_PSK_WITH_AES_128_CBC_SHA256** |
+| Pre-shared Key | Pre-shared Key | 128 bits AES symetrical Encryption | 256 bits SHA for HMAC. |
                     
 TLS is modular : use can use NULL to have authentication + Integrity only.
 
@@ -157,9 +155,11 @@ aims to reduce the delay included by the handshake.
 [a few introduction slides](https://www.ietf.org/proceedings/88/slides/slides-88-tls-4.pdf)
 
 #### wolfSSL
-Lightweight SSL-compliant library(TLS&DTLS 1.2). writen in C.
-Some ciphers don't require padding (save data)
+
+Lightweight TLS-compliant library (TLS & DTLS 1.2). writen in C.    
+Some ciphers don't require padding (save data)    
 Use a short MAC ()
+[homepage](https://www.wolfssl.com/wolfSSL/Home.html)    
 
 #### TinyDLTS
 
@@ -180,7 +180,7 @@ Library for DTLS :
 [Offical Website](https://www.eclipse.org/vorto/)    
 [Slides from bosh](http://fr.slideshare.net/stefferber/20141015-eclipse-webinarinfomodels)    
 
-IoT Model to descibe the devices, associated with code generators. Plateforms providers generates code that works on their plateform from a standard model.
+IoT Model to descibe the devices, associated with code generators. Plateforms providers generates code that works on their plateform from a standard model.     
 ![slide from bosh](./bosh_vorto.png)
 
 The Models are created via the Ecplise IoT Tool Set.
@@ -219,7 +219,7 @@ infomodel TI_SensorTag_CC2650 {
 }
 
 ````
-[GitHub](https://github.com/eclipse/vorto)
+[Source code](https://github.com/eclipse/vorto)
 
 
 ## Random notes & questions
@@ -228,7 +228,7 @@ TIME. a revoked certificat can be used by a hacker if  the  device doesn't have 
 How constrained objects stay on time ?
 
 
-[Texas Instruments interview raising interresitng questions](http://www.iotjournal.com/articles/view?13001)
+[Texas Instruments interview raising interesting questions](http://www.iotjournal.com/articles/view?13001)
 
 
 about 802.15.4 -> non-standard ethernet frames. up to 127 bytes. Allows to do Auth and/or Integrity and/or encryption. Encryption is done with a symetrical 128 bytes key. 
