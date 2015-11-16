@@ -1,11 +1,9 @@
 #!/usr/bin/python3
 __author__ = "Jean-Baptiste Trystram"
 
-import sys, os, socket, cprofile
-from timeit import Timer
+import sys, os, socket, time
 
-
-def help(detail, argument):
+def help(detail, argument=""):
     if (detail == "all"):
         print ("No crypto alogorithm specified. It should be genEC, genRSA or test\n\
 Usage : gen_n_test.py RSA -calength 4096 \n\
@@ -147,22 +145,35 @@ def generate(mode, directory, argv):
                       + caKeyFile + " -out " + caCertFile)
 
 
-def test(directory, port, resumption, cipher, clientBindAddress, serverMode, inputArgs):
-    os.chdir(directory)
+def generateServerCommand(port, resumption, cipher):
 
-    if serverMode:
-        # launch server in another window
-        print ("Launching server..")
-        serverCommand = 'gnome-terminal --profile hold -e "openssl s_server -accept {0} -key server.key -cert server.crt -CAfile ca.crt -Verify 2 {1} {2} "'\
-            .format(str(port), (' -cipher {0}'.format(cipher)) if cipher else "", (' <<< {0}'.format(inputArgs)) if inputArgs else "")
-        os.system(serverCommand)
+    serverCommand = 'gnome-terminal --profile hold -e "openssl s_server -accept {0} -key server.key -cert server.crt -CAfile ca.crt -Verify 2 {1} {2} "'\
+        .format(str(port), (' -cipher {0}'.format(cipher)) if cipher else "",\
+        '-naccept 2' if (resumption) else "" )
+    return serverCommand
 
-    if clientBindAddress:
-        print ("Launching client..")
-        clientCommand = 'os.system(\"echo | openssl s_client -connect {0}:{1} -cert client.crt -key client.key -CAfile ca.crt {2} -quiet -no_ign_eof ")'\
-        .format(clientBindAddress, str(port), ("-reconnect" if (resumption) else ""))
-        time = Timer(clientCommand, 'import os')
-        print ("%.2f msec " % (1000 * time.timeit(number=1)))
+
+def generateClientCommand(port, resumption, clientBindAddress, inputArgs):
+    clientCommand = 'echo | openssl s_client -connect {0}:{1} -cert client.crt -key client.key -CAfile ca.crt {2} -quiet -no_ign_eof {3} ' \
+        .format(clientBindAddress, str(port), ("-reconnect" if (resumption) else ""), (' <<< {0}'.format(inputArgs)) if inputArgs else "")
+    return clientCommand
+
+
+def perfTest(command):
+
+    # Start the timers
+    sysstart = time.perf_counter()
+    start = time.process_time()
+    #Run the command !
+    os.system(command)
+    # stop the timers
+    stop = time.process_time()
+    sysstop = time.perf_counter()
+
+    stats = {'Time': sysstop-sysstart, 'CPU time': stop-start}
+    # cpu usage = processTime / System-wide time
+    stats['cpu usage'] = stats['CPU time']/stats['Time']
+    return stats
 
 def main(argv=None):
     if argv is None:
@@ -213,21 +224,22 @@ def main(argv=None):
         if resumption and inputArgs:
             help("incompatibleOptionResumption")
 
-        # Launch the tests
-        test(workDir, port, resumption, cipher, clientAddress, server, inputArgs)
+        # cd in the appropriate directory
+        os.chdir(workDir)
+        # if needed generate the openssl command to run for the server then run it
+        if server:
+            srvCommand = generateServerCommand(port, resumption, cipher)
+            # launch server in another window
+            print ("Launching server..")
+            os.system(srvCommand)
 
+        # Same for the client
+        if clientAddress :
+            cliCommand = generateClientCommand(port, resumption, clientAddress, inputArgs)
+            print ("Launching client & measurements")
+            #do measurements
+            perfs = perfTest(cliCommand)
+            print ("Handshake done : {0}".format(perfs))
 
 if __name__ == "__main__":
     main()
-
-#-naccept count
-#    The server will exit after receiving number connections, default unlimited.
-
-
-
-    # launch server in another window
-
-    # gnome-terminal -x sh -c "openssl s_server -accept 4433 -key server.key -cert server.crt -CAfile ca.crt -Verify 2"
-
-    # echo "Server is launch, launching client :"
-    # openssl s_client -connect localhost:4433 -cert client_ec.crt -key client_ec.key -CAfile ca.crt
