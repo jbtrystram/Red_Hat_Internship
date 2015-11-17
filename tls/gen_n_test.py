@@ -7,7 +7,7 @@ def help(detail, argument=""):
     if (detail == "all"):
         print ("No crypto alogorithm specified. It should be genEC, genRSA or test\n\
 Usage : gen_n_test.py RSA -calength 4096 \n\
-    gen_n_test.py EC -name sect571r1 \n\
+    gen_n_test.py EC -curve sect571r1 \n\
     gen_n_test.py test -resumption -port 443 -dir /var/rsa_certs\n\
     gen_n_test.py test -client  -port 443 -input \"my mqtt Message\" \n\
 This script generate EC or RSA certificates, or run a test-handshake and do measurements. (CPU consuption, memory and time) \n\
@@ -88,7 +88,7 @@ def generate(mode, directory, argv):
         if not serverKeySize:
             serverKeySize = 2048
 
-    if (mode == 'EC'):
+    else :
         param = "ecparam"
 
         curve = getOption(argv, "-curve")
@@ -153,9 +153,10 @@ def generateServerCommand(port, resumption, cipher):
     return serverCommand
 
 
-def generateClientCommand(port, resumption, clientBindAddress, inputArgs):
-    clientCommand = 'echo | openssl s_client -connect {0}:{1} -cert client.crt -key client.key -CAfile ca.crt {2} -quiet -no_ign_eof {3} ' \
-        .format(clientBindAddress, str(port), ("-reconnect" if (resumption) else ""), (' <<< {0}'.format(inputArgs)) if inputArgs else "")
+def generateClientCommand(port, resumption, clientBindAddress, inputArgs, cipher):
+    clientCommand = 'echo "{4}"| openssl s_client -connect {0}:{1} -cert client.crt -key client.key -CAfile ca.crt {2} {3} -quiet -no_ign_eof' \
+        .format(clientBindAddress, str(port), ("-reconnect" if (resumption) else ""),
+                (' -cipher {0}'.format(cipher)) if cipher else "", inputArgs if inputArgs else "")
     return clientCommand
 
 
@@ -170,9 +171,9 @@ def perfTest(command):
     stop = time.process_time()
     sysstop = time.perf_counter()
 
-    stats = {'Time': sysstop-sysstart, 'CPU time': stop-start}
+    stats = {'Time (ms)': (sysstop-sysstart)*1000, 'CPU time (ms)': (stop-start)*1000}
     # cpu usage = processTime / System-wide time
-    stats['cpu usage'] = stats['CPU time']/stats['Time']
+    stats['cpu usage'] = (stats['CPU time (ms)']/stats['Time (ms)'])*100
     return stats
 
 def main(argv=None):
@@ -194,7 +195,15 @@ def main(argv=None):
 
     # do we have a specific directory
     workDir = getOption(argv, "-dir")
-    if not workDir :
+    if workDir :
+        if not (os.path.isdir(workDir)):
+            try :
+                os.makedirs("./{0}".format(workDir))
+            except OSError as exception:
+                wd = os.path.join(os.getcwd(), workDir)
+                print ("can't create {0} . exit.".format(wd))
+                sys.exit()
+    else :
         workDir = os.getcwd()
 
     # Now we can decide what to do
@@ -211,10 +220,10 @@ def main(argv=None):
         server = getOption(argv, "-server", justCheck=True)
 
         # Assigning default values
-        if not port :
+        if not port:
                 port = 4433
 
-        if (server and clientAddress) or not(server and clientAddress):
+        if (server and clientAddress) or (not server and not clientAddress):
             server = True
             clientAddress = "127.0.0.1"
         elif clientAddress:
@@ -230,16 +239,19 @@ def main(argv=None):
         if server:
             srvCommand = generateServerCommand(port, resumption, cipher)
             # launch server in another window
-            print ("Launching server..")
+            print("Launching server..")
             os.system(srvCommand)
 
         # Same for the client
         if clientAddress :
-            cliCommand = generateClientCommand(port, resumption, clientAddress, inputArgs)
-            print ("Launching client & measurements")
+            cliCommand = generateClientCommand(port, resumption, clientAddress, inputArgs, cipher)
+           # print(cliCommand)
+            print("Launching client & measurements")
             #do measurements
             perfs = perfTest(cliCommand)
-            print ("Handshake done : {0}".format(perfs))
+            print("Handshake done : {0}".format(perfs))
 
 if __name__ == "__main__":
     main()
+
+#./gen_n_test.py test -client 127.0.0.1 -port 4433 -dir ec_certs/works/brainpoolP256r1/ -cipher NULL -input "$(< MQTT)"
