@@ -28,7 +28,8 @@ Cisco c [implemation](https://github.com/cisco/libest) (a [test server](http://t
 
 [Presentation slides](https://www.ietf.org/proceedings/83/slides/slides-83-pkix-5.pdf)   
 
-Glossary : $ptographic Message Syntax
+Glossary : 
+ - CMS cryptographic Message Syntax
  - CMC : certificate management over CMS
  - TA : Trust Anchor
 

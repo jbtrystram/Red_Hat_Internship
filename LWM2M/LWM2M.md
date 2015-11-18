@@ -228,6 +228,7 @@ Security is provided by the datagram layer. See [specification](http://dev_devto
 [Ponte : an eclipse project bridging CoAP, MQTT & HTTP](http://www.eclipse.org/ponte/)
 [RabitMQ plug-in : COAP pub/sub adaptation](https://github.com/gotthardp/rabbitmq-coap-pubsub)
 [LWM2M Gateway](https://wiki.eclipse.org/images/7/7b/LWM2M_slides_Eclipse_unconference.pdf)(Slide 15)
+[LWM2M over MQTT](https://github.com/sathipal/lwm2m_over_mqtt)
 
 ## Alternatives
 
