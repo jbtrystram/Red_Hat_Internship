@@ -1,11 +1,19 @@
 #!/usr/bin/python3
 __author__ = "Jean-Baptiste Trystram"
 
-import sys, os, socket, time
+import sys, os, socket, time, subprocess
+from scapy.all import *
+from threading import Thread
+
+exchange_size = 0
+tls_exchange_over = False
+
+# TODO : if you want to do network-level measure, you should be prompted for your root password
 
 def help(detail, argument=""):
     if (detail == "all"):
-        print ("No crypto alogorithm specified. It should be genEC, genRSA or test\n\
+        print ("No crypto algorithm specified ! It should be genEC, genRSA or test\n\
+########################################### \n\
 Usage : gen_n_test.py RSA -calength 4096 \n\
     gen_n_test.py EC -curve sect571r1 \n\
     gen_n_test.py test -resumption -port 443 -dir /var/rsa_certs\n\
@@ -31,8 +39,9 @@ Available options : \n\
         This option CANNOT BE USED along -resumption \n\
         -resumption : test the resumption mechanisms (5 connections in a row). CANNOT BE USED with -input \n\
         -dir /path/ : absolute or relative path to the previously generated certs to use. Default is ./ \n\
-        -cipher : value : specify a cipher you want to use for the tests. ")
+        -cipher : value : specify a cipher you want to use for the tests.")
         sys.exit()
+
     elif detail == "nocurve":
         print ("An eliptic curve MUST be specified when using EC generation. \n\
             Run 'openssl ecparam -list_curves' for a list of the available curves.")
@@ -73,18 +82,18 @@ def getOption(argv, string, justCheck=False):
 
 def generate(mode, directory, argv):
     # Set arguments for the openSSL command
-    if (mode == 'RSA'):
+    if mode == "rsa":
         param = "genrsa"
 
-        caKeySize = getOption(argv, "-CAlength")
+        caKeySize = getOption(argv, "-calength")
         if not caKeySize:
             caKeySize = 4096
 
-        clientKeySize = getOption(argv, "-Clientlength")
+        clientKeySize = getOption(argv, "-clientlength")
         if not clientKeySize:
             clientKeySize = 2048
 
-        serverKeySize = getOption(argv, "-Serverlength")
+        serverKeySize = getOption(argv, "-serverlength")
         if not serverKeySize:
             serverKeySize = 2048
 
@@ -102,8 +111,7 @@ def generate(mode, directory, argv):
     caKeyFile = os.path.join(directory, "ca.key")
     caCertFile = os.path.join(directory, "ca.crt")
 
-    entities = ["ca", "server", "client"]
-    for i in entities:
+    for i in ["ca", "server", "client"]:
         j = 1
         # create paths to the files
         KeyFile = os.path.join(directory, i + ".key")
@@ -112,25 +120,24 @@ def generate(mode, directory, argv):
 
         # prepare the command for the private key:
         # openssl = os.system("which openssl")
-        openssl = ("/usr/bin/openssl " + param + " -out " + KeyFile + " ")
-        if (mode == "RSA"):
+        openssl = ("/usr/bin/openssl /{0} -out {1}").format(param, KeyFile)
+        if (mode == "rsa"):
             if (i == "ca"):
                 keysize = str(caKeySize)
             elif (i == "server"):
                 keysize = str(serverKeySize)
             else:
                 keysize = str(clientKeySize)
-            openssl = openssl + keysize
+            openssl += ' {0}'.format(keysize)
         else:
-            openssl = openssl + " -genkey"
+            openssl += " -genkey"
         # generate Private key
-        print(openssl)
         os.system(openssl)
         if (i != "ca"):
             # Certificate Signing Request
             print ("############################ THIS IS THE " + i + " CERTIFICATE")
-            os.system("openssl req -new -key " + KeyFile + " -out " + CsrFile)
-            # answer the openSSL questions (organisation, name,  etc)
+            os.system("openssl req -new -key {0} -out {1}".format(KeyFile,CsrFile))
+            # TODO : automated answers the openSSL questions (organisation, name,  etc)
             # sign it with the CA
             os.system("openssl x509 -req -days 365 -in " + CsrFile + " -CA "
                       + caCertFile + " -CAkey " + caKeyFile + " -set_serial "
@@ -160,8 +167,31 @@ def generateClientCommand(port, resumption, clientBindAddress, inputArgs, cipher
     return clientCommand
 
 
-def perfTest(command):
+def pkt_size(packet):
+    global exchange_size
+    exchange_size += len(packet[TCP])
 
+def stopperCheck():
+    #global tls_exchange_over
+    if tls_exchange_over:
+        return True
+    else: return False
+
+
+def sniff_network(host, port):
+    filter  = "host {0} and tcp and port {1}".format(host, port)
+    pakets = sniff(filter=filter, prn=pkt_size, stopperTimeout=1, stopper=stopperCheck, store=1)
+    # TODO : this should be optionnal and the file should be specified. The file have to be chmoded
+    wrpcap("/home/jibou/temp.cap", pakets)
+
+def perfTest(command, host, port):
+    # captureing network packets to get the overall size of the TCP exchange
+    capture = Thread(target=sniff_network, args=(host, port))
+    # Making the thread a daemon force it to qui when all other threads are exited.
+    capture.start()
+
+    # Thread needs a bit of time
+    time.sleep(2)
     # Start the timers
     sysstart = time.perf_counter()
     start = time.process_time()
@@ -171,26 +201,26 @@ def perfTest(command):
     stop = time.process_time()
     sysstop = time.perf_counter()
 
+    global tls_exchange_over
+    tls_exchange_over = True
+    print("all finished. size {0}".format(exchange_size))
+
     stats = {'Time (ms)': (sysstop-sysstart)*1000, 'CPU time (ms)': (stop-start)*1000}
     # cpu usage = processTime / System-wide time
-    stats['cpu usage'] = (stats['CPU time (ms)']/stats['Time (ms)'])*100
+    stats['cpu usage (%)'] = (stats['CPU time (ms)']/stats['Time (ms)'])*100
+    stats['TCP size'] = exchange_size
     return stats
 
 def main(argv=None):
     if argv is None:
-        argv = sys.argv
+        #lowercase all arguments
+        argv = [x.lower() for x in sys.argv]
 
     # the first argument should define the mode : RSA, EC or test.
     if (len(argv) < 2):
         help("all")
     mode = argv[1]
-    if (mode.upper() == "RSA"):
-        mode = "RSA"
-    elif (mode.upper() == "EC"):
-        mode = "EC"
-    elif (mode.upper() == "TEST"):
-        mode = "test"
-    else:
+    if mode not in ["rsa", "ec", "test"]:
         help("all")
 
     # do we have a specific directory
@@ -207,7 +237,7 @@ def main(argv=None):
         workDir = os.getcwd()
 
     # Now we can decide what to do
-    if (mode == "RSA" or mode == "EC"):
+    if mode in ['rsa', 'ec']:
         generate(mode, workDir, argv)
     else:
         # get special parameters from the arguments
@@ -222,6 +252,9 @@ def main(argv=None):
         # Assigning default values
         if not port:
                 port = 4433
+
+        if cipher and ("PSK" in cipher):
+            cipher = "{0} -psk c033f52671c61c8128f7f8a40be88038bcf2b07a6eb3095c36e3759f0cf40837".format(cipher)
 
         if (server and clientAddress) or (not server and not clientAddress):
             server = True
@@ -248,10 +281,11 @@ def main(argv=None):
            # print(cliCommand)
             print("Launching client & measurements")
             #do measurements
-            perfs = perfTest(cliCommand)
+            perfs = perfTest(cliCommand, clientAddress, port)
             print("Handshake done : {0}".format(perfs))
 
 if __name__ == "__main__":
     main()
+
 
 #./gen_n_test.py test -client 127.0.0.1 -port 4433 -dir ec_certs/works/brainpoolP256r1/ -cipher NULL -input "$(< MQTT)"
