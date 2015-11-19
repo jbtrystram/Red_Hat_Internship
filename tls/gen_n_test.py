@@ -119,7 +119,6 @@ def generate(mode, directory, argv):
         CertFile = os.path.join(directory, i + ".crt")
 
         # prepare the command for the private key:
-        # openssl = os.system("which openssl")
         openssl = ("/usr/bin/openssl /{0} -out {1}").format(param, KeyFile)
         if (mode == "rsa"):
             if (i == "ca"):
@@ -154,7 +153,7 @@ def generate(mode, directory, argv):
 
 def generateServerCommand(port, resumption, cipher):
 
-    serverCommand = 'gnome-terminal --profile hold -e "openssl s_server -accept {0} -key server.key -cert server.crt -CAfile ca.crt -Verify 2 {1} {2} "'\
+    serverCommand = '/usr/bin/openssl s_server -accept {0} -key server.key -cert server.crt -CAfile ca.crt -Verify 2 {1} {2} '\
         .format(str(port), (' -cipher {0}'.format(cipher)) if cipher else "",\
         '-naccept 2' if (resumption) else "" )
     return serverCommand
@@ -181,21 +180,26 @@ def stopperCheck():
 def sniff_network(host, port):
     filter  = "host {0} and tcp and port {1}".format(host, port)
     pakets = sniff(filter=filter, prn=pkt_size, stopperTimeout=1, stopper=stopperCheck, store=1)
-    # TODO : this should be optionnal and the file should be specified. The file have to be chmoded
-    wrpcap("/home/jibou/temp.cap", pakets)
+    # TODO : this should be optionnal and the file should be specified. The file have to be chown
+    wrpcap("./trace.cap", pakets)
+
 
 def perfTest(command, host, port):
+    global exchange_size
+    global tls_exchange_over
     # captureing network packets to get the overall size of the TCP exchange
     capture = Thread(target=sniff_network, args=(host, port))
     # Making the thread a daemon force it to qui when all other threads are exited.
     capture.start()
 
     # Thread needs a bit of time
-    time.sleep(2)
+    time.sleep(1)
     # Start the timers
     sysstart = time.perf_counter()
     start = time.process_time()
     #Run the command !
+    #client_process = subprocess.Popen(command.split(), shell=False)
+    #client_process.wait()
     os.system(command)
     # stop the timers
     stop = time.process_time()
@@ -203,12 +207,15 @@ def perfTest(command, host, port):
 
     global tls_exchange_over
     tls_exchange_over = True
-    print("all finished. size {0}".format(exchange_size))
 
     stats = {'Time (ms)': (sysstop-sysstart)*1000, 'CPU time (ms)': (stop-start)*1000}
     # cpu usage = processTime / System-wide time
     stats['cpu usage (%)'] = (stats['CPU time (ms)']/stats['Time (ms)'])*100
-    stats['TCP size'] = exchange_size
+
+    #if capturing on localhost, divide the size by 2 because each p acket is sniffed twice.
+    if host == "127.0.0.1":
+        exchange_size /= 2
+    stats['TCP size (bytes)'] = exchange_size
     return stats
 
 def main(argv=None):
@@ -224,7 +231,7 @@ def main(argv=None):
         help("all")
 
     # do we have a specific directory
-    workDir = getOption(argv, "-dir")
+    workDir = getOption(sys.argv, "-dir")
     if workDir :
         if not (os.path.isdir(workDir)):
             try :
@@ -273,16 +280,26 @@ def main(argv=None):
             srvCommand = generateServerCommand(port, resumption, cipher)
             # launch server in another window
             print("Launching server..")
-            os.system(srvCommand)
+            server_process = subprocess.Popen(srvCommand.split(), shell=False, stdout=subprocess.PIPE)
+            print("SERVER PID IS {0}".format(server_process.pid))
 
         # Same for the client
         if clientAddress :
             cliCommand = generateClientCommand(port, resumption, clientAddress, inputArgs, cipher)
-           # print(cliCommand)
             print("Launching client & measurements")
             #do measurements
             perfs = perfTest(cliCommand, clientAddress, port)
-            print("Handshake done : {0}".format(perfs))
+            print("Results : {0}".format(str(perfs)))
+            f = open('result.txt', 'a+', encoding="utf-8")
+            for key, value in perfs.items() :
+                f.write("{0} : {1}, ".format(key, ("%.3f" % value)))
+            f.write("\n")
+            #time.sleep(1)
+
+        if server:
+            # We can kill the server, since everything is done.
+            server_process.kill()
+
 
 if __name__ == "__main__":
     main()
